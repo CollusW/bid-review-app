@@ -1,0 +1,6 @@
+{
+  "llm_base_url": "",
+  "llm_api_key": "",
+  "llm_model": "kimi-k2.6",
+  "_hint": "请在前端右上角'设置'按钮中填写你的 API Key。获取地址：https://platform.moonshot.cn/console/api-keys"
+}

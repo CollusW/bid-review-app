@@ -1,0 +1,10 @@
+# 敏感数据（API Key、数据库、上传文件）
+data/settings.json
+data/app.db
+data/uploads/
+__pycache__/
+*.pyc
+*.pyo
+
+# 保留 template
+!data/settings.json.template

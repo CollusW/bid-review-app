@@ -1,0 +1,63 @@
+标书审查系统 使用说明
+========================
+
+【首次使用 - 环境准备】
+1. 安装 Python 3.10+
+   - 下载地址：https://www.python.org/downloads/
+   - 或使用附带的 python-3.15.2-amd64.exe 安装包
+   - 安装时务必勾选 "Add Python to PATH"（非常重要！）
+2. 确保电脑已安装 Microsoft Word（用于解析 .doc 招标文件）
+   - 未装 Word 也能用，但 .doc 文件需先另存为 .docx 或 .pdf
+3. （可选）安装 Markdown 查看器，用于阅读导出的审查报告
+   - MarkText（免费开源）：https://github.com/marktext/marktext/releases
+   - 或直接用浏览器打开 .md 文件，粘到 https://markdown.live/ 在线查看
+   - 或用 VS Code、Typora 等
+
+【首次使用 - 启动系统】
+1. 双击 "启动.bat"
+2. 首次启动会自动安装依赖（约 1-2 分钟），请耐心等待
+3. 浏览器自动打开系统页面
+4. 首次使用会自动弹出设置框，请填写 API Key
+   - API Key 获取地址：https://platform.moonshot.cn/console/api-keys
+   - 充值地址：https://platform.moonshot.cn/console/account
+5. 填写 API Key 后点击"测试连接"，通过后保存即可使用
+
+【日常使用】
+1. 双击 "启动.bat"
+2. 浏览器自动打开系统
+3. 新建项目 → 上传标书/招标文件 → 点击审查
+4. 审查过程中请勿关闭命令行窗口（窗口关闭 = 服务停止）
+5. 审查完成后查看报告，可导出为 Markdown
+
+【停止服务】
+直接关闭命令行窗口即可。
+
+【常见问题】
+
+Q: 启动时提示"未检测到 Python"？
+A: 未安装 Python 或安装时未勾选 "Add to PATH"。请重新安装并勾选。
+   注意：如果已安装但仍提示此错误，可能是 Windows 的 Store 重定向器抢先，
+   请确认 Python 安装时勾选了 "Add Python to PATH"。
+
+Q: 启动时提示安装依赖失败？
+A: 检查网络连接，或手动在命令行执行：
+   "C:\Users\你的用户名\AppData\Local\Programs\Python\Python315\python.exe" -m pip install -r requirements.txt
+
+Q: 审查时报错"API Key 无效"？
+A: 点击右上角"设置"检查 Key 是否正确，或前往 Moonshot 控制台充值。
+
+Q: .doc 招标文件无法解析？
+A: 用 Word 打开另存为 .docx 或 .pdf 后重新上传。
+
+Q: 审查过程很慢？
+A: 正常现象，AI 审查约需 10-20 分钟，请耐心等待。期间会显示检查进度。
+
+Q: 浏览器没有自动打开？
+A: 手动在浏览器地址栏输入：http://127.0.0.1:8000
+
+Q: 导出的 .md 报告打不开？
+A: 用记事本就能打开；或安装 MarkText（https://github.com/marktext/marktext/releases）；
+   或粘到 https://markdown.live/ 在线查看。
+
+【技术支持】
+联系：考乐思

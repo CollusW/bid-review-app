@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>标书智能审查系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f6f5f2;color:#2c2c2a;font-size:14px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 24px 60px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+h1{font-size:20px;font-weight:500;color:#3c3489}
+h1 span{font-size:12px;color:#5f5e5a;font-weight:400;margin-left:8px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;font-size:14px;padding:8px 18px;background:#534ab7;color:#fff}
+button:hover{background:#463da3}
+button:disabled{background:#b4b2a9;cursor:not-allowed}
+button.ghost{background:#fff;color:#534ab7;border:1px solid #afa9ec}
+button.ghost:hover{background:#eeedfe}
+button.small{padding:4px 12px;font-size:12px;border-radius:6px}
+button.danger{background:#fff;color:#a32d2d;border:1px solid #e5b8b8}
+button.danger:hover{background:#fcebeb}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #e8e6df}
+.card h2{font-size:15px;font-weight:500;color:#3c3489;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.stepnum{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#534ab7;color:#fff;align-items:center;justify-content:center;font-size:12px;flex:none}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+select,input[type=text],input[type=password]{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid #d3d1c7;border-radius:8px;background:#fff;color:#2c2c2a}
+#newProjName{width:200px}
+.uploads{display:flex;gap:16px;flex-wrap:wrap}
+.upzone{flex:1;min-width:280px;border:2px dashed #afa9ec;border-radius:12px;padding:22px;text-align:center;background:#fdfdff;cursor:pointer;transition:background .15s,border-color .15s}
+.upzone:hover,.upzone.drag{background:#eeedfe;border-color:#534ab7}
+.upzone b{display:block;font-size:15px;color:#3c3489;margin-bottom:4px}
+.upzone p{font-size:12px;color:#5f5e5a}
+.filelist{margin-top:12px;font-size:12px;color:#5f5e5a}
+.fitem{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#f6f5f2;border-radius:6px;margin-bottom:4px}
+.fitem .fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:#3c3489;text-decoration:underline dotted}
+.fitem .fname:hover{color:#534ab7}
+.fops{display:flex;gap:8px;flex:none}
+.fops a{color:#534ab7;text-decoration:none;font-size:12px}
+.fops a:hover{text-decoration:underline}
+.fops a.del{color:#a32d2d}
+.tag{font-size:11px;border-radius:4px;padding:1px 8px;flex:none}
+.tag.tender{background:#e6f1fb;color:#185fa5}.tag.bid{background:#e1f5ee;color:#0f6e56}
+.rulesbox{margin-top:14px;border:1px solid #e3e0d8;border-radius:10px;padding:12px 14px;background:#fcfbf7}
+.rulesbox h3{font-size:13px;color:#3c3489;margin:0 0 6px}
+.rulesbox .hint{font-size:12px;color:#5f5e5a;line-height:1.6;margin:0 0 8px}
+.rulesbox textarea{width:100%;box-sizing:border-box;border:1px solid #d8d5cc;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical}
+.rulesbox .rulesbar{display:flex;gap:10px;align-items:center;margin-top:8px}
+.rulesbox .rst{font-size:12px;color:#0f6e56;flex:1}
+#runbox{display:none}
+.progress{height:10px;background:#eeedfe;border-radius:5px;overflow:hidden;margin:10px 0}
+.progress i{display:block;height:100%;background:#534ab7;border-radius:5px;transition:width .4s}
+#runmsg{font-size:13px;color:#3c3489;font-weight:500;margin-bottom:8px}
+#runtasks{margin:8px 0 10px;border:1px solid #e8e6df;border-radius:10px;padding:10px 14px;background:#fcfbf7;max-height:260px;overflow:auto}
+.taskbar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#3c3489;font-weight:500;margin-bottom:4px}
+.taskcount{color:#3c3489}
+.task{display:flex;gap:10px;align-items:center;font-size:12px;color:#5f5e5a;padding:5px 0;border-bottom:1px dotted #e8e6df}
+.task:last-child{border-bottom:none}
+.task .dot{width:18px;height:18px;border-radius:50%;background:#f1efe8;color:#888780;display:inline-flex;align-items:center;justify-content:center;font-size:10px;flex:none}
+.task .stext{flex:1;min-width:0}
+.task .tpos{font-size:11px;color:#888780;margin-left:6px;font-weight:400}
+.task .tres{font-size:11px;flex:none;border-radius:4px;padding:0 8px}
+.task .tres.good{background:#eaf3de;color:#3b6d11}
+.task .tres.bad{background:#faeeda;color:#854f0b}
+.task .tres.err{background:#fcebeb;color:#a32d2d}
+.task .stime{font-size:11px;color:#b0aea6;flex:none}
+.task.done{color:#5f5e5a}
+.task.done .dot{background:#eaf3de;color:#3b6d11}
+.task.doing{color:#3c3489;font-weight:500}
+.task.doing .dot{background:#534ab7;color:#fff;animation:pulse 1.2s infinite}
+.task.error{color:#a32d2d}
+.task.error .dot{background:#fcebeb;color:#a32d2d}
+#runsteps{border:1px solid #e8e6df;border-radius:10px;padding:10px 14px;background:#fcfbf7;max-height:260px;overflow:auto}
+.step{display:flex;gap:10px;align-items:center;font-size:12px;color:#5f5e5a;padding:5px 0;border-bottom:1px dotted #e8e6df}
+.step:last-child{border-bottom:none}
+.step .dot{width:18px;height:18px;border-radius:50%;background:#f1efe8;color:#888780;display:inline-flex;align-items:center;justify-content:center;font-size:10px;flex:none}
+.step .stext{flex:1;min-width:0}
+.step .stime{font-size:11px;color:#b0aea6;flex:none}
+.step.done{color:#5f5e5a}
+.step.done .dot{background:#eaf3de;color:#3b6d11}
+.step.doing{color:#3c3489;font-weight:500}
+.step.doing .dot{background:#534ab7;color:#fff;animation:pulse 1.2s infinite}
+.step.error{color:#a32d2d}
+.step.error .dot{background:#fcebeb;color:#a32d2d}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font-size:12px;padding:3px 12px;border-radius:14px;background:#f1efe8;color:#444441}
+.chip.red{background:#fcebeb;color:#a32d2d}.chip.amber{background:#faeeda;color:#854f0b}
+.chip.green{background:#eaf3de;color:#3b6d11}.chip.blue{background:#e6f1fb;color:#185fa5}
+.filters{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.filters select{padding:5px 8px;font-size:13px}
+.issue{border:1px solid #e8e6df;border-radius:10px;padding:14px 16px;margin-bottom:10px;background:#fff}
+.issue .top{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.issue .top .t{flex:1;font-weight:500;color:#2c2c2a}
+.badge{font-size:11px;border-radius:4px;padding:1px 8px;flex:none}
+.b-high{background:#fcebeb;color:#a32d2d}.b-medium{background:#faeeda;color:#854f0b}.b-low{background:#f1efe8;color:#5f5e5a}
+.b-open{background:#e6f1fb;color:#185fa5}.b-resolved{background:#eaf3de;color:#3b6d11}
+.b-wip{background:#faeeda;color:#854f0b}.b-ignored{background:#f1efe8;color:#888780}
+.b-cat{background:#eeedfe;color:#534ab7}
+.detail{display:none;margin-top:12px;border-top:1px dashed #e8e6df;padding-top:12px;font-size:13px}
+.issue.open .detail{display:block}
+.detail .row{margin-bottom:8px}
+.detail .row b{color:#5f5e5a;font-weight:500;margin-right:6px}
+.evidence{background:#f6f5f2;border-radius:6px;padding:8px 12px;font-size:12px;white-space:pre-wrap;max-height:180px;overflow:auto;font-family:inherit}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.actions input{flex:1;min-width:160px}
+.btn-resolved{background:#3b6d11!important}.btn-wip{background:#854f0b!important}
+.btn-ignored{background:#5f5e5a!important}.btn-open{background:#185fa5!important}
+.hist{margin-top:10px;font-size:12px;color:#5f5e5a}
+.hist div{padding:3px 0;border-bottom:1px dotted #e8e6df}
+.empty{text-align:center;color:#888780;padding:40px 0;font-size:13px}
+#settingsMask{display:none;position:fixed;inset:0;background:rgba(44,44,42,.4);align-items:center;justify-content:center;z-index:10}
+#settingsMask.on{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;width:460px;max-width:92vw}
+.modal h3{font-size:16px;color:#3c3489;margin-bottom:6px}
+.modal p{font-size:12px;color:#5f5e5a;margin-bottom:14px}
+.modal label{display:block;font-size:12px;color:#5f5e5a;margin:10px 0 4px}
+.modal input,.modal select{width:100%}
+.keyrow{display:flex;gap:8px;align-items:center}
+.keyrow input{flex:1}
+#setModelCustom{margin-top:6px}
+#testResult{margin-top:12px;font-size:12px;border-radius:8px;padding:8px 12px;display:none}
+#testResult.ok{display:block;background:#eaf3de;color:#3b6d11}
+#testResult.err{display:block;background:#fcebeb;color:#a32d2d}
+#testResult.wait{display:block;background:#e6f1fb;color:#185fa5}
+.modal .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+#sumline{font-size:12px;color:#5f5e5a;margin-bottom:14px}
+a.dl{font-size:13px;color:#534ab7}
+#toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%);background:#2c2c2a;color:#fff;font-size:13px;padding:10px 20px;border-radius:8px;z-index:99;display:none;max-width:80vw;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+#toast.ok{background:#3b6d11}#toast.err{background:#a32d2d}#toast.info{background:#185fa5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>标书智能审查系统 <span>V1.3 · .doc 支持 + 检查任务实时明细</span></h1>
+    <button class="ghost small" onclick="openSettings()">设置</button>
+  </header>
+
+  <div class="card">
+    <h2><span class="stepnum">0</span>选择或新建审查项目</h2>
+    <div class="bar">
+      <select id="projSel" onchange="onProjectChange()"></select>
+      <input type="text" id="newProjName" placeholder="输入新项目名称">
+      <button onclick="createProject()">新建项目</button>
+    </div>
+  </div>
+
+  <div class="card" id="uploadCard">
+    <h2><span class="stepnum">1</span>上传文件（可多次上传，后传的同类型文件为最新版）</h2>
+    <div class="uploads">
+      <div class="upzone" id="zoneTender" onclick="pickFile('招标文件')">
+        <b>招标文件（技术要求）</b>
+        <p>拖入或点击上传 PDF / DOCX / DOC / TXT</p>
+        <input type="file" id="fileTender" hidden accept=".pdf,.docx,.doc,.txt,.md" onchange="upload(this,'招标文件')">
+      </div>
+      <div class="upzone" id="zoneBid" onclick="pickFile('标书')">
+        <b>标书（必传）</b>
+        <p>拖入或点击上传 PDF / DOCX / DOC</p>
+        <input type="file" id="fileBid" hidden accept=".pdf,.docx,.doc" onchange="upload(this,'标书')">
+      </div>
+    </div>
+    <div class="filelist" id="fileList"></div>
+    <div class="rulesbox">
+      <h3>补充检查项（可选）</h3>
+      <p class="hint">系统会自动读取<b>招标文件正文</b>并<b>逐项核对</b>标书（上传含文本层的招标文件即可，无需手动粘贴要求）。此框用于补充系统可能遗漏的重点：<b>评分办法细节、个性化关注点、我方特殊承诺、内部质检要求</b>等，填写后将与招标文件要求<b>一并交给大模型综合检查</b>（一标书一规则）。招标文件是扫描件无法自动读取时，在此粘贴关键要求是获得针对性审查的关键；不填则仅按招标文件自动核对，<b>不会把其他项目的规则强加给本标书</b>。</p>
+      <textarea id="rulesText" rows="5" placeholder="示例（可留空）：
+1. 请重点核对评分办法中商务分与技术分的每一项评分点是否都有对应响应章节；
+2. 检查我方承诺的质保期 24 个月是否在技术方案、商务偏离表、售后服务三处表述一致；
+3. 技术参数表中★项参数（如工作频段 2.4GHz、发射功率 ≥ 20dBm）标书是否全部如实响应。"></textarea>
+      <div class="rulesbar">
+        <span id="rulesStatus" class="rst"></span>
+        <button class="ghost" onclick="loadRules()">放弃修改</button>
+        <button onclick="saveRules()">保存补充检查项</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="runCard">
+    <h2><span class="stepnum">2</span>开始审查</h2>
+    <button id="btnRun" onclick="startReview()">开始自动审查</button>
+    <div id="runbox">
+      <div class="progress"><i id="runbar" style="width:0%"></i></div>
+      <div id="runmsg"></div>
+      <div id="runtasks"></div>
+      <div id="runsteps"></div>
+    </div>
+  </div>
+
+  <div class="card" id="issueCard" style="display:none">
+    <h2><span class="stepnum">3</span>问题清单（逐条处理，点击展开）</h2>
+    <div id="sumline"></div>
+    <div class="chips" id="chips"></div>
+    <div class="filters">
+      <label style="font-size:12px;color:#5f5e5a">严重度</label>
+      <select id="fSev" onchange="renderIssues()"><option value="">全部</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
+      <label style="font-size:12px;color:#5f5e5a">状态</label>
+      <select id="fStatus" onchange="renderIssues()"><option value="">全部</option><option value="open">待处理</option><option value="wip">待改进</option><option value="resolved">已解决</option><option value="ignored">已忽略</option></select>
+      <a class="dl" id="dlReport" href="#" style="margin-left:auto">导出审查报告（文件名自动带版本号）</a>
+    </div>
+    <div id="issueList"></div>
+  </div>
+</div>
+
+<div id="settingsMask">
+  <div class="modal">
+    <h3>LLM 语义审查设置（可选）</h3>
+    <p>配置任意 OpenAI 兼容接口后，审查将追加 LLM 语义检查（措辞、一致性等规则覆盖不了的问题）；留空则只跑规则引擎。标书内容会发送至所配置的接口，请使用内网或可信服务。</p>
+    <label>接口地址（如 https://api.example.com/v1）</label>
+    <input type="text" id="setBase" placeholder="https://api.example.com/v1">
+    <label>API Key（安全保护：输入后仅显示部分字符）</label>
+    <div class="keyrow">
+      <input type="password" id="setKey" placeholder="未配置（留空则不启用 LLM）" autocomplete="new-password">
+      <button class="ghost small danger" id="btnClearKey" onclick="clearKey()">清除</button>
+    </div>
+    <div class="settings-hint" style="margin-top:6px;font-size:12px;color:#888;line-height:1.6;">
+      没有 API Key？<a href="https://platform.moonshot.cn/console/api-keys" target="_blank" style="color:#4a90d9;">前往 Moonshot 开放平台注册并获取</a>
+      ｜<a href="https://platform.moonshot.cn/console/account" target="_blank" style="color:#4a90d9;">充值额度</a>
+    </div>
+    <label>模型名（模型名会直接传给接口，写错将导致审查失败，建议从下拉选择）</label>
+    <select id="setModel" onchange="onModelChange()">
+      <option value="">-- 请选择模型 --</option>
+      <option value="glm-4">glm-4（智谱 GLM-4）</option>
+      <option value="glm-4-plus">glm-4-plus（智谱 GLM-4-Plus）</option>
+      <option value="glm-4-flash">glm-4-flash（智谱 GLM-4-Flash 免费）</option>
+      <option value="deepseek-chat">deepseek-chat（DeepSeek-V3）</option>
+      <option value="deepseek-reasoner">deepseek-reasoner（DeepSeek-R1）</option>
+      <option value="qwen-max">qwen-max（通义千问 Max）</option>
+      <option value="qwen-plus">qwen-plus（通义千问 Plus）</option>
+      <option value="qwen-turbo">qwen-turbo（通义千问 Turbo）</option>
+      <option value="gpt-4o">gpt-4o（OpenAI）</option>
+      <option value="gpt-4o-mini">gpt-4o-mini（OpenAI）</option>
+      <option value="__custom__">自定义…（手动输入）</option>
+    </select>
+    <input type="text" id="setModelCustom" style="display:none" placeholder="手动输入模型名，请与接口服务商核对">
+    <div id="testResult"></div>
+    <div class="btns">
+      <button class="ghost" onclick="closeSettings()">取消</button>
+      <button class="ghost" id="btnTest" onclick="testSettings()">测试连接</button>
+      <button onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let projects = [], cur = null, ov = null, pollTimer = null;
+const SEVL = {high:'高', medium:'中', low:'低'};
+const STATL = {open:'待处理', resolved:'已解决', wip:'待改进', ignored:'已忽略'};
+const MODEL_PRESETS = ['glm-4','glm-4-plus','glm-4-flash','deepseek-chat','deepseek-reasoner','qwen-max','qwen-plus','qwen-turbo','gpt-4o','gpt-4o-mini'];
+
+async function api(path, opts){
+  const r = await fetch(path, opts);
+  if(!r.ok){
+    let msg = r.statusText;
+    try{ msg = (await r.json()).detail || msg; }catch(e){}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+function showToast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type || '';
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.style.display = 'none'; }, 3000);
+}
+
+async function loadProjects(keepId){
+  projects = await api('/api/projects');
+  const sel = document.getElementById('projSel');
+  sel.innerHTML = projects.length
+    ? projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')
+    : '<option value="">（暂无项目）</option>';
+  if(keepId) sel.value = keepId;
+  cur = projects.length ? projects.find(p=>String(p.id)===String(sel.value)) || projects[0] : null;
+  refresh();
+  loadRules();
+  checkFirstRun();
+}
+
+// 首次启动引导：API Key 未配置时自动弹 settings 框
+let _firstRunChecked = false;
+async function checkFirstRun(){
+  if(_firstRunChecked) return;
+  _firstRunChecked = true;
+  try{
+    const s = await api('/api/settings');
+    if(!s.llm_api_key){
+      showToast('首次使用，请先配置 API Key', 'warn');
+      openSettings();
+    }
+  }catch(e){}
+}
+
+// ---- 补充检查项：按项目保存，审查时与招标文件要求一并注入 LLM（一标书一规则） ----
+async function loadRules(){
+  const ta = document.getElementById('rulesText');
+  const st = document.getElementById('rulesStatus');
+  if(!cur){ ta.value=''; st.textContent=''; return; }
+  try{
+    const r = await api(`/api/projects/${cur.id}/rules`);
+    ta.value = r.content || '';
+    st.textContent = r.content
+      ? `已保存（${r.updated_at||''}），将随招标文件要求一并交给大模型综合检查`
+      : '未填写：将仅按招标文件正文自动核对（不误报，不会强加其他项目规则）';
+  }catch(e){}
+}
+async function saveRules(){
+  if(!cur) return;
+  const content = document.getElementById('rulesText').value.trim();
+  await api(`/api/projects/${cur.id}/rules`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({content})});
+  showToast('补充检查项已保存，下次审查生效', 'ok');
+  loadRules();
+}
+
+async function createProject(){
+  const name = document.getElementById('newProjName').value.trim();
+  if(!name){ alert('请输入项目名称'); return; }
+  const p = await api('/api/projects', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})});
+  document.getElementById('newProjName').value = '';
+  await loadProjects(p.id);
+}
+
+function onProjectChange(){ stopPoll(); loadProjects(); }
+
+function pickFile(type){
+  document.getElementById(type==='标书' ? 'fileBid' : 'fileTender').click();
+}
+
+// ---- 拖拽上传：修复浏览器把拖入文件直接打开的问题 ----
+function setupDrop(zoneId, type){
+  const z = document.getElementById(zoneId);
+  ['dragenter','dragover'].forEach(ev=>z.addEventListener(ev, e=>{
+    e.preventDefault(); e.stopPropagation();
+    z.classList.add('drag');
+  }));
+  ['dragleave','drop'].forEach(ev=>z.addEventListener(ev, e=>{
+    e.preventDefault(); e.stopPropagation();
+    z.classList.remove('drag');
+  }));
+  z.addEventListener('drop', e=>{
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(f) uploadFile(f, type);
+  });
+}
+// 阻止文件被拖到页面其他区域时浏览器直接打开
+document.addEventListener('dragover', e=>e.preventDefault());
+document.addEventListener('drop', e=>e.preventDefault());
+
+async function upload(input, type){
+  if(!cur){ alert('请先选择或新建项目'); if(input) input.value=''; return; }
+  if(!input.files.length) return;
+  uploadFile(input.files[0], type);
+  input.value = '';
+}
+
+async function uploadFile(f, type){
+  if(!cur){ showToast('请先选择或新建项目', 'err'); return; }
+  const fd = new FormData();
+  fd.append('project_id', cur.id); fd.append('doc_type', type); fd.append('file', f);
+  showToast('上传中：'+f.name+' …', 'info');
+  try{
+    const r = await api('/api/documents', {method:'POST', body:fd});
+    showToast('上传成功：'+r.filename, 'ok');
+    refresh();
+  }catch(e){ showToast('上传失败：'+e.message, 'err'); }
+}
+
+function viewDoc(id){
+  window.open(`/api/documents/${id}/content`, '_blank');
+}
+
+async function delDoc(id, name){
+  if(!confirm(`确定删除文件《${name}》吗？删除后不可恢复，若需重新审查请删除后重传。`)) return;
+  try{
+    await api(`/api/documents/${id}`, {method:'DELETE'});
+    showToast('已删除：'+name, 'ok');
+    refresh();
+  }catch(e){ showToast('删除失败：'+e.message, 'err'); }
+}
+
+async function startReview(){
+  if(!cur) return;
+  try{
+    await api(`/api/projects/${cur.id}/review`, {method:'POST'});
+    poll();
+  }catch(e){ alert(e.message); }
+}
+
+function stopPoll(){ if(pollTimer){ clearInterval(pollTimer); pollTimer = null; } }
+
+function poll(){
+  stopPoll();
+  pollTimer = setInterval(async ()=>{
+    await refresh();
+    if(ov && ov.run && ov.run.status !== 'running') stopPoll();
+  }, 2000);
+  refresh();
+}
+
+async function refresh(){
+  if(!cur) return;
+  ov = await api(`/api/projects/${cur.id}/overview`);
+  render();
+}
+
+function render(){
+  if(!ov) return;
+  // 文件列表：支持点击查看内容与删除
+  const fl = document.getElementById('fileList');
+  fl.innerHTML = (ov.documents||[]).map(d=>
+    `<div class="fitem">
+       <span class="fname" title="点击查看内容" onclick="viewDoc(${d.id})">${esc(d.filename)}</span>
+       <span class="tag ${d.doc_type==='标书'?'bid':'tender'}">${d.doc_type} · ${d.uploaded_at}</span>
+       <span class="fops">
+         <a href="#" onclick="viewDoc(${d.id});return false;">查看</a>
+         <a class="del" href="#" onclick="delDoc(${d.id},'${esc(d.filename).replace(/'/g,"\\'")}');return false;">删除</a>
+       </span>
+     </div>`).join('');
+  // 审查状态
+  const run = ov.run;
+  const box = document.getElementById('runbox');
+  const btn = document.getElementById('btnRun');
+  if(run){
+    box.style.display = 'block';
+    document.getElementById('runbar').style.width = (run.progress||0)+'%';
+    document.getElementById('runmsg').textContent = run.message || '';
+    // 检查任务明细：实时显示"正在检查X / 已完成X/Y / 当前项检查无问题"
+    const tasks = run.tasks || [];
+    const tasksDone = tasks.filter(t=>t.s==='done'||t.s==='error').length;
+    const tasksEl = document.getElementById('runtasks');
+    tasksEl.innerHTML = tasks.length ? `
+      <div class="taskbar">
+        <span class="taskcount">检查任务进度：已完成 ${tasksDone}/${tasks.length}</span>
+        <span class="stime" style="font-size:11px;color:#b0aea6">${run.status==='running'?'审查进行中…':'已结束'}</span>
+      </div>
+      ${tasks.map(t=>{
+        let mark, cls = t.s, tail = '';
+        if(t.s==='done'){
+          if(t.n>0){ mark='⚠'; tail='<span class="tres bad">发现 '+t.n+' 条</span>'; }
+          else { mark='✓'; tail='<span class="tres good">检查无问题</span>'; }
+        } else if(t.s==='error'){ mark='✕'; tail='<span class="tres err">'+(esc(t.err)||'调用失败')+'</span>'; }
+        else { mark='▶'; }
+        return `<div class="task ${cls}">
+            <span class="dot">${mark}</span>
+            <span class="stext">${esc(t.t)}${t.pos?'<span class="tpos">'+esc(t.pos)+'</span>':''}</span>
+            ${tail}
+            <span class="stime">${t.ts||''}</span>
+          </div>`;
+      }).join('')}` : '';
+    // 步骤时间线：逐步显示已完成/进行中/失败的检查步骤
+    const steps = run.steps || [];
+    document.getElementById('runsteps').innerHTML = steps.length
+      ? steps.map(s=>{
+          const st = s.s==='done'?'✓':s.s==='error'?'✕':'▶';
+          return `<div class="step ${s.s}">
+              <span class="dot">${st}</span>
+              <span class="stext">${esc(s.t)}</span>
+              <span class="stime">${s.ts||''}</span>
+            </div>`;
+        }).join('')
+      : '';
+    const running = run.status === 'running';
+    btn.disabled = running;
+    btn.textContent = running ? '审查进行中…' : '重新审查';
+    if(running && !pollTimer) poll();
+  } else { box.style.display = 'none'; btn.disabled = false; btn.textContent = '开始自动审查'; }
+  // 问题清单
+  const issues = ov.issues || [];
+  const card = document.getElementById('issueCard');
+  if(issues.length || (run && run.status==='done')){
+    card.style.display = 'block';
+    document.getElementById('dlReport').href = `/api/projects/${cur.id}/report.md`;
+    const sc = {high:0,medium:0,low:0}, st = {open:0,wip:0,resolved:0,ignored:0};
+    issues.forEach(i=>{ sc[i.severity]=(sc[i.severity]||0)+1; st[i.status]=(st[i.status]||0)+1; });
+    document.getElementById('sumline').textContent = run && run.summary && run.summary['问题统计'] ? ('审查结果：'+run.summary['问题统计']) : '';
+    document.getElementById('chips').innerHTML =
+      `<span class="chip">共 ${issues.length} 条</span>`+
+      (sc.high?`<span class="chip red">高 ${sc.high}</span>`:'')+
+      (sc.medium?`<span class="chip amber">中 ${sc.medium}</span>`:'')+
+      (sc.low?`<span class="chip">低 ${sc.low}</span>`:'')+
+      `<span class="chip blue">待处理 ${st.open||0}</span>`+
+      `<span class="chip amber">待改进 ${st.wip||0}</span>`+
+      `<span class="chip green">已解决 ${st.resolved||0}</span>`+
+      `<span class="chip">已忽略 ${st.ignored||0}</span>`;
+    renderIssues();
+  } else card.style.display = 'none';
+}
+
+function renderIssues(){
+  if(!ov) return;
+  const fs = document.getElementById('fSev').value;
+  const ft = document.getElementById('fStatus').value;
+  const list = (ov.issues||[]).filter(i=>(!fs||i.severity===fs)&&(!ft||i.status===ft));
+  const el = document.getElementById('issueList');
+  if(!list.length){ el.innerHTML = '<div class="empty">当前筛选条件下没有问题项</div>'; return; }
+  el.innerHTML = list.map(i=>{
+    const h = (ov.history||{})[i.id] || [];
+    return `<div class="issue" id="iss${i.id}">
+      <div class="top" onclick="document.getElementById('iss${i.id}').classList.toggle('open')">
+        <span class="badge b-${i.severity}">${SEVL[i.severity]||i.severity}</span>
+        <span class="t">${esc(i.title)}</span>
+        <span class="badge b-cat">${i.category}${i.source==='llm'?'·AI':''}</span>
+        <span class="badge b-${i.status}">${STATL[i.status]||i.status}</span>
+      </div>
+      <div class="detail">
+        ${i.page?`<div class="row"><b>位置</b>第 ${i.page} 页</div>`:''}
+        ${i.description?`<div class="row"><b>说明</b>${esc(i.description)}</div>`:''}
+        ${i.evidence?`<div class="row"><b>证据</b></div><div class="evidence">${esc(i.evidence)}</div>`:''}
+        ${i.suggestion?`<div class="row"><b>建议</b>${esc(i.suggestion)}</div>`:''}
+        <div class="actions">
+          <input type="text" id="note${i.id}" placeholder="处理备注（可选，随状态一起记录）">
+          <button class="small btn-open" onclick="setStatus(${i.id},'open')">待处理</button>
+          <button class="small btn-wip" onclick="setStatus(${i.id},'wip')">待改进</button>
+          <button class="small btn-resolved" onclick="setStatus(${i.id},'resolved')">已解决</button>
+          <button class="small btn-ignored" onclick="setStatus(${i.id},'ignored')">已忽略</button>
+        </div>
+        ${h.length?`<div class="hist"><b>处理历史</b>${h.map(x=>`<div>${x.created_at}｜${STATL[x.from_status]||x.from_status} → ${STATL[x.to_status]||x.to_status}${x.note?'｜'+esc(x.note):''}</div>`).join('')}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function setStatus(id, status){
+  const note = (document.getElementById('note'+id)||{}).value || '';
+  await api(`/api/issues/${id}`, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status, note})});
+  refresh();
+}
+
+function esc(s){ return String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// ---- 设置：API Key 脱敏显示 / 模型下拉 / 测试连接 ----
+async function openSettings(){
+  const s = await api('/api/settings');
+  document.getElementById('setBase').value = s.llm_base_url || '';
+  document.getElementById('setKey').value = s.llm_api_key || '';   // 后端已脱敏
+  document.getElementById('setKey').placeholder = s.key_masked ? '已配置（脱敏显示）' : '未配置（留空则不启用 LLM）';
+  document.getElementById('btnClearKey').style.display = s.key_masked ? '' : 'none';
+  const sel = document.getElementById('setModel');
+  const custom = document.getElementById('setModelCustom');
+  if(s.llm_model && MODEL_PRESETS.includes(s.llm_model)){
+    sel.value = s.llm_model; custom.style.display = 'none';
+  } else {
+    sel.value = '__custom__'; custom.value = s.llm_model || ''; custom.style.display = s.llm_model ? '' : 'none';
+  }
+  const tr = document.getElementById('testResult');
+  tr.className = ''; tr.style.display = 'none'; tr.textContent = '';
+  document.getElementById('settingsMask').classList.add('on');
+}
+
+function onModelChange(){
+  const custom = document.getElementById('setModelCustom');
+  custom.style.display = document.getElementById('setModel').value === '__custom__' ? '' : 'none';
+}
+
+function closeSettings(){ document.getElementById('settingsMask').classList.remove('on'); }
+
+function getModelValue(){
+  const sel = document.getElementById('setModel');
+  return sel.value === '__custom__' ? document.getElementById('setModelCustom').value.trim() : sel.value;
+}
+
+async function saveSettings(){
+  try{
+    await api('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        llm_base_url: document.getElementById('setBase').value,
+        llm_api_key: document.getElementById('setKey').value,
+        llm_model: getModelValue() })});
+    closeSettings();
+    showToast('设置已保存', 'ok');
+  }catch(e){ alert('保存失败：'+e.message); }
+}
+
+async function testSettings(){
+  const btn = document.getElementById('btnTest');
+  const tr = document.getElementById('testResult');
+  tr.className = 'wait'; tr.style.display = 'block';
+  tr.textContent = '正在测试连接，请稍候…（最多 30 秒）';
+  btn.disabled = true; btn.textContent = '测试中…';
+  try{
+    const r = await api('/api/settings/test', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        llm_base_url: document.getElementById('setBase').value,
+        llm_api_key: document.getElementById('setKey').value,
+        llm_model: getModelValue() })});
+    tr.className = r.ok ? 'ok' : 'err';
+    tr.textContent = (r.ok ? '✅ ' : '❌ ') + r.message;
+  }catch(e){
+    tr.className = 'err';
+    tr.textContent = '❌ 测试请求失败：'+e.message;
+  }finally{
+    btn.disabled = false; btn.textContent = '测试连接';
+  }
+}
+
+async function clearKey(){
+  if(!confirm('确定清除已保存的 API Key 吗？清除后 LLM 语义审查将不可用（可重新填写）。')) return;
+  try{
+    await api('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        llm_base_url: document.getElementById('setBase').value,
+        llm_api_key: '',
+        llm_model: getModelValue() })});
+    document.getElementById('setKey').value = '';
+    document.getElementById('setKey').placeholder = '未配置（留空则不启用 LLM）';
+    document.getElementById('btnClearKey').style.display = 'none';
+    showToast('API Key 已清除', 'ok');
+  }catch(e){ alert('清除失败：'+e.message); }
+}
+
+setupDrop('zoneTender', '招标文件');
+setupDrop('zoneBid', '标书');
+loadProjects();
+</script>
+</body>
+</html>
