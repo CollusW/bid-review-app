@@ -48,6 +48,13 @@ A: 点击右上角"设置"检查 Key 是否正确，或前往 Moonshot 控制台
 
 Q: .doc 招标文件无法解析？
 A: 用 Word 打开另存为 .docx 或 .pdf 后重新上传。
+   .doc 解析需要安装 pywin32（Windows 专属），启动.bat 会自动安装。
+   如果仍报错，确认电脑已安装 Microsoft Word（非 WPS）。
+
+Q: PDF 审查报错 "DLL load failed" 或 "_extra" 模块找不到？
+A: 这是缺少 Microsoft Visual C++ 运行库。请下载安装：
+   https://aka.ms/vs/17/release/vc_redist.x64.exe
+   安装后重新双击启动.bat 即可。
 
 Q: 审查过程很慢？
 A: 正常现象，AI 审查约需 10-20 分钟，请耐心等待。期间会显示检查进度。
